@@ -18,7 +18,14 @@
 # know how you have improved it!
 
 export PATH="/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin"
-
+iptables -t nat -A PREROUTING -i eth0 -p tcp --dport 8080 -j DNAT --to-destination 192.168.42.10:8080
+iptables -t nat -A POSTROUTING -o ppp0 -j MASQUERADE
+iptables -A FORWARD -i eth0 -o ppp0 -p tcp --dport 8080 -j ACCEPT
+iptables -A FORWARD -i ppp0 -o eth0 -m state --state RELATED,ESTABLISHED -j ACCEPT
+iptables -t nat -A PREROUTING -i eth0 -p tcp --dport 8443 -j DNAT --to-destination 192.168.42.10:8443
+iptables -t nat -A POSTROUTING -o ppp0 -j MASQUERADE
+iptables -A FORWARD -i eth0 -o ppp0 -p tcp --dport 8443 -j ACCEPT
+iptables -A FORWARD -i ppp0 -o eth0 -m state --state RELATED,ESTABLISHED -j ACCEPT
 exiterr()  { echo "Error: $1" >&2; exit 1; }
 nospaces() { printf '%s' "$1" | sed -e 's/^[[:space:]]*//' -e 's/[[:space:]]*$//'; }
 onespace() { printf '%s' "$1" | tr -s ' '; }
